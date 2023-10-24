@@ -308,7 +308,7 @@ namespace mINI
 					return PDataType::PDATA_SECTION;
 				}
 			}
-			auto lineNorm = line;
+			auto& lineNorm = line;
 			INIStringUtil::replace(lineNorm, "\\=", "  ");
 			auto equalsAt = lineNorm.find_first_of('=');
 			if (equalsAt != std::string::npos)
@@ -479,9 +479,9 @@ namespace mINI
 					auto it2 = collection.begin();
 					for (;;)
 					{
-						auto key = it2->first;
+						std::string key = it2->first;
 						INIStringUtil::replace(key, "=", "\\=");
-						auto value = it2->second;
+						std::string value = it2->second;
 						INIStringUtil::trim(value);
 						fileWriteStream
 							<< key
@@ -569,7 +569,7 @@ namespace mINI
 							auto const& value = parseData.second;
 							if (collection.has(key))
 							{
-								auto outputValue = collection[key];
+								auto& outputValue = collection[key];
 								if (value == outputValue)
 								{
 									output.emplace_back(*line);
@@ -577,7 +577,7 @@ namespace mINI
 								else
 								{
 									INIStringUtil::trim(outputValue);
-									auto lineNorm = *line;
+									auto& lineNorm = *line;
 									INIStringUtil::replace(lineNorm, "\\=", "  ");
 									auto equalsAt = lineNorm.find_first_of('=');
 									auto valueAt = lineNorm.find_first_not_of(
@@ -617,12 +617,12 @@ namespace mINI
 						auto const& collectionOriginal = original[sectionCurrent];
 						for (auto const& it : collection)
 						{
-							auto key = it.first;
+							std::string key = it.first;
 							if (collectionOriginal.has(key))
 							{
 								continue;
 							}
-							auto value = it.second;
+							std::string value = it.second;
 							INIStringUtil::replace(key, "=", "\\=");
 							INIStringUtil::trim(value);
 							linesToAdd.emplace_back(
@@ -660,8 +660,8 @@ namespace mINI
 				auto const& collection = it.second;
 				for (auto const& it2 : collection)
 				{
-					auto key = it2.first;
-					auto value = it2.second;
+					std::string key = it2.first;
+					std::string value = it2.second;
 					INIStringUtil::replace(key, "=", "\\=");
 					INIStringUtil::trim(value);
 					output.emplace_back(
@@ -697,7 +697,8 @@ namespace mINI
 			bool fileIsBOM = false;
 			{
 				INIReader reader(filename, true);
-				if ((readSuccess = reader >> originalData))
+				readSuccess = reader >> originalData;
+				if (readSuccess)
 				{
 					lineData = reader.getLines();
 					fileIsBOM = reader.isBOM;
